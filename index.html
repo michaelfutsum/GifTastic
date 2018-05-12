@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>GifTastic</title>
+    <link rel="stylesheet" type="text/css" href="assets/style.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</head>
+</head>
+
+
+<body>
+
+    <h1>Having a ruff day?</h1>
+
+    <div>
+        <form id="dog-form">
+            <label for="dog-input">Find a dog to make you smile: </label>
+            <input type="text" id="dog-input">
+            <br>
+            <input id="add-dog" type="submit" value="Submit">
+        </form>
+        <br>
+            <div id="buttons-view"></div>
+        <br>
+        <br>
+            <div id="dogs-view"></div>
+    </div>
+
+    <!-- Tried to put it in my app.js but it just wasn't registering -->
+
+    <script type="text/javascript">
+        var dogs = ["German Shepard", "Poodle", "Pitbull", "Golden Retreiver", "BullDog"];
+
+        function generateButtons() {
+            $("#buttons-view").empty();
+
+            for (var i = 0; i < dogs.length; i++) {
+                var a = $("<button>");
+                
+                a.addClass("dog-btn");
+    
+                a.attr("dog-name", dogs[i]);
+                
+                a.text(dogs[i]);
+                
+                $("#buttons-view").append(a);
+            }
+        }
+       
+        $(document).on("click", ".dog-btn", myDog);
+        
+        $("#add-dog").on("click", function (event) {
+            event.preventDefault();
+            var dog = $("#dog-input").val().trim();
+            
+            if (dog == "") {
+                return false;
+            }
+            
+            dogs.push(dog);
+            generateButtons();
+        });
+        generateButtons();
+    
+        function myDog() {
+            var dog = $(this).attr("dog-name");
+            var queryURL = "https://api.giphy.com/v1/gifs/search?q=" + dog + "&api_key=F4j9EUwwmB60Tn2pwjldRt6Xx9RiuuVb&limit=10";
+            console.log(queryURL);
+            $.ajax({
+                url: queryURL,
+                method: "GET"
+            })
+                .done(function (response) {
+
+                    for (var i = 0; i < 10; i++) {
+                        var stillImgURL = response["data"][i]["images"]["fixed_height_still"]["url"];
+                        var animatedImgURL = response["data"][i]["images"]["fixed_height"]["url"];
+                        var ratingP = response["data"][i]["rating"];
+
+                        
+                        var image = $("<img>").attr("src", stillImgURL);
+                        image.attr("data-StillURL", "stillImgURL");
+                        image.attr("data-AnimatedURL", "animatedImgURL");
+
+                        
+                        var dogDiv = $("<div class='dog'>");
+                        var p = $("<p>").text("Rated: " + ratingP);
+
+                        
+                        dogDiv.append(image);
+                        dogDiv.append(p);
+
+                        
+                        $("#dogs-view").prepend(dogDiv);
+                        
+                        console.log("Response: " + response.data);
+                        console.log("Dog: " + dog);
+                        console.log("Still Image URL: " + stillImgURL);
+                        console.log("Animated Image URL: " + animatedImgURL);
+                        console.log("Rating: " + ratingP);
+                    }
+
+                });
+}
+                        // I couldnt find how to make it animate 
+    </script>
+</body>
+</html>
